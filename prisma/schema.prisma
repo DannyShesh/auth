@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model games {
+  id        Int    @id @default(autoincrement())
+  title     String @db.VarChar(255)
+  thumbnail String @db.VarChar(255)
+  game_url  String @db.VarChar(255)
+}
+
+model orders {
+  id        Int      @id @default(autoincrement())
+  userID    Int
+  productID Int
+  date      DateTime @db.Date
+  paid      Boolean
+  users     users    @relation(fields: [userID], references: [id], onUpdate: Restrict, map: "orders_ibfk_1")
+  products  products @relation(fields: [productID], references: [id], onUpdate: Restrict, map: "orders_ibfk_2")
+
+  @@index([productID], map: "productID")
+  @@index([userID], map: "userID")
+}
+
+model products {
+  id     Int      @id @default(autoincrement())
+  name   String   @db.VarChar(100)
+  price  Int
+  stock  Int
+  imgUrl String   @db.VarChar(255)
+  orders orders[]
+}
+
+model training {
+  id        Int    @id @default(autoincrement())
+  productId String @db.VarChar(255)
+  api       String @db.VarChar(255)
+}
+
+model users {
+  id       Int      @id @default(autoincrement())
+  name     String   @db.VarChar(100)
+  email    String   @db.VarChar(100) @unique
+  password String   @db.VarChar(100)
+  orders   orders[]
+}
